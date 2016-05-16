@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import net.md_5.bungee.protocol.Protocol;
@@ -14,6 +15,8 @@ import dev.wolveringer.BungeeUtil.CostumPrintStream;
 import dev.wolveringer.BungeeUtil.Main;
 import dev.wolveringer.BungeeUtil.Player;
 import dev.wolveringer.chat.ChatColor.ChatColorUtils;
+
+import static javafx.scene.input.KeyCode.T;
 
 public abstract class AbstractPacketCreator {
 	public int calculate(BigClientVersion version,Protocol p, Direction d, Integer id) {
@@ -37,11 +40,13 @@ public abstract class AbstractPacketCreator {
 		return Direction.values()[((int) (base >> 8)) & 0x0F];
 	}
 
-	public Packet getPacket(BigClientVersion version,Protocol s, Direction d, ByteBuf x, Player p) {
-		x.markReaderIndex().markWriterIndex();
-		int id;
-		Packet y = getPacket0(version,s, d, (int)(id = x.readUnsignedByte()), x, p); // faster
-		x.resetReaderIndex().resetWriterIndex();
+	public Packet getPacket(BigClientVersion version,Protocol s, Direction d, ByteBuf byteBuf, Player p) {
+		if (byteBuf.readableBytes() < 1) {
+			return null;
+		}
+		byteBuf.markReaderIndex().markWriterIndex();
+		Packet y = getPacket0(version,s, d, (int) byteBuf.readUnsignedByte(), byteBuf, p); // faster
+		byteBuf.resetReaderIndex().resetWriterIndex();
 		return y;
 	}
 
