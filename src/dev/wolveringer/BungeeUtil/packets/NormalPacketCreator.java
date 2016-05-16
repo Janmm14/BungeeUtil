@@ -82,7 +82,6 @@ public class NormalPacketCreator extends AbstractPacketCreator {
 				return null;
 			}
 			Packet packet = cons.newInstance();
-			if (packet == null) return null;
 			if (p == null || p.getVersion() == null) return packet.setcompressedId(compressed).load(b, ClientVersion.UnderknownVersion);
 			else return packet.setcompressedId(compressed).load(b, p.getVersion());
 		}
