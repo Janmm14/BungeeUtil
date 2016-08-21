@@ -25,6 +25,7 @@ import dev.wolveringer.packet.ByteBuffCreator;
 import dev.wolveringer.packet.PacketHandle;
 import dev.wolveringer.profiler.Profiler;
 import dev.wolveringer.strings.Messages;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class Decoder extends MinecraftDecoder {
 	private static final Field field_protocol = getField(MinecraftDecoder.class, "protocol");
@@ -175,16 +176,15 @@ public class Decoder extends MinecraftDecoder {
 				if(!initHandler.isConnected)
 					return;
 				switch (Configuration.getHandleExceptionAction()) {
-				case DISCONNECT:
-					initHandler.disconnect(e);
-				case PRINT:
-					e.printStackTrace();
-				default:
-					break;
+					case DISCONNECT:
+						initHandler.disconnect(e);
+						//intended fallthrough
+					case PRINT:
+						System.err.println("Packet error for " + initHandler.getName() + " | " + initHandler.getAddress().getAddress().getHostAddress() + " version: " + initHandler.getVersion() + ": " + ExceptionUtils.getStackTrace(e));
 				}
 				return;
 			}
-	
+
 			Protocol.DirectionData prot = isServer() ? this.getProtocol().TO_SERVER : this.getProtocol().TO_CLIENT;
 			ByteBuf copy = packet == null ? in.copy() : packet.writeToByteBuff(ByteBuffCreator.createByteBuff(),ClientVersion.fromProtocoll(initHandler.getVersion()));
 			try{
@@ -200,7 +200,7 @@ public class Decoder extends MinecraftDecoder {
 				}else{
 					in.skipBytes(in.readableBytes());
 				}
-	
+
 				out.add(new PacketWrapper(bungeePacket, copy));
 				copy = null;
 			}finally{
